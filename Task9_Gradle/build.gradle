@@ -1,0 +1,35 @@
+plugins {
+    id 'java'
+}
+
+group 'ru.mirea'
+
+repositories {
+    mavenCentral()
+}
+
+jar {
+    manifest {
+        attributes(
+                'Main-Class' : 'ru.mirea.Main'
+        )
+    }
+}
+
+tasks.register('copyJar', Copy) {
+    dependsOn(jar)
+    from file("$buildDir/libs/task09.jar")
+    into file("$rootDir/src/main/resources/")
+}
+
+tasks.register('buildImage', Exec) {
+    dependsOn 'copyJar'
+    commandLine 'docker', 'build', '-t', 'task09', './src/main/resources/'
+}
+
+tasks.register('runDocker', Exec) {
+    dependsOn 'buildImage'
+    commandLine 'docker', 'run', '--name', 'task09', 'task09'
+}
+
+defaultTasks 'runDocker'
